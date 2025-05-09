@@ -6,162 +6,40 @@
   <title>Ed Eats</title>
   <style>
     /* Global styles */
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #80d8ff, #a7ffeb);
-      color: #333;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin: 0 0 10px;
-      text-shadow: 2px 2px #fff;
-    }
+    body { display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #80d8ff, #a7ffeb); color: #333; }
+    h1 { font-size: 2.5rem; margin: 0 0 10px; text-shadow: 2px 2px #fff; }
 
     /* Controls */
-    #controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      width: 100%;
-      max-width: 500px;
-    }
-    #controls input {
-      flex: 1;
-      padding: 8px;
-      font-size: 1rem;
-      border: 2px solid #333;
-      border-radius: 4px;
-      width: auto;
-    }
-    #controls button {
-      padding: 8px 16px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 4px;
-      background: #ff6f61;
-      color: #fff;
-      cursor: pointer;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-      transition: background 0.3s;
-    }
-    #controls button:hover {
-      background: #ff3b2f;
-    }
+    #controls { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 500px; }
+    #controls input { flex: 1; padding: 8px; font-size: 1rem; border: 2px solid #333; border-radius: 4px; }
+    #controls button { padding: 8px 16px; font-size: 1rem; border: none; border-radius: 4px; background: #ff6f61; color: #fff; cursor: pointer; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); transition: background 0.3s; }
+    #controls button:hover { background: #ff3b2f; }
 
     /* Lists layout */
-    #lists {
-      display: flex;
-      gap: 30px;
-      margin-bottom: 30px;
-      width: 100%;
-      max-width: 600px;
-    }
-    .list-container {
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      flex: 1;
-      min-height: 200px;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
-    }
-    .list-container h3 {
-      text-align: center;
-      margin-top: 0;
-      font-size: 1.2rem;
-      border-bottom: 2px solid #ff6f61;
-      padding-bottom: 5px;
-    }
-    .restaurant-item {
-      padding: 8px;
-      margin: 6px 0;
-      background: #ffeee6;
-      border-radius: 4px;
-      cursor: move;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: bold;
-    }
-    .restaurant-item::before {
-      content: '🍽️';
-    }
-    .list-container.drag-over {
-      background: #fff5f0;
-      border: 2px dashed #ff6f61;
-    }
+    #lists { display: flex; gap: 30px; margin-bottom: 30px; width: 100%; max-width: 600px; }
+    .list-container { background: #fff; padding: 15px; border-radius: 8px; flex: 1; min-height: 200px; box-shadow: 2px 2px 8px rgba(0,0,0,0.15); }
+    .list-container h3 { text-align: center; margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid #ff6f61; padding-bottom: 5px; }
+    .restaurant-item { padding: 8px; margin: 6px 0; background: #ffeee6; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; }
+    .restaurant-item.disabled { opacity: 0.5; }
+    .restaurant-item::before { content: '🍽️'; }
 
     /* Slot machine styles */
-    #slot {
-      width: 90vw;
-      max-width: 320px;
-      height: 120px;
-      border: 6px solid #333;
-      border-radius: 8px;
-      background: #fff;
-      overflow: hidden;
-      position: relative;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-    }
-    #slot-container {
-      display: flex;
-      flex-direction: column;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      transform: translateY(0);
-      transition: none;
-    }
-    .slot-item {
-      height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      background: linear-gradient(180deg, #fff7f0, #ffe6e0);
-      border-bottom: 0px solid #ddd;
-    }
+    #slot { width: 90vw; max-width: 320px; height: 120px; border: 6px solid #333; border-radius: 8px; background: #fff; overflow: hidden; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+    #slot-container { display: flex; flex-direction: column; position: absolute; top: 0; left: 0; right: 0; transform: translateY(0); transition: none; }
+    .slot-item { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: linear-gradient(180deg, #fff7f0, #ffe6e0); border-bottom: 1px solid #ddd; }
 
     /* Spin button */
-    #spin-button {
-      margin-top: 20px;
-      padding: 12px 24px;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 6px;
-      background: #ff6f61;
-      color: #fff;
-      cursor: pointer;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-      transition: background 0.3s;
-    }
-    #spin-button:hover {
-      background: #ff3b2f;
-    }
+    #spin-button { margin-top: 20px; padding: 12px 24px; font-size: 1.1rem; border: none; border-radius: 6px; background: #ff6f61; color: #fff; cursor: pointer; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); transition: background 0.3s; width: 100%; max-width: 320px; }
+    #spin-button:hover { background: #ff3b2f; }
 
     /* Result text */
-    #result {
-      margin-top: 20px;
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #d84315;
-      text-shadow: 1px 1px #fff;
-      max-width: 90vw;
-      text-align: center;
-    }
+    #result { margin-top: 20px; font-size: 1.4rem; font-weight: bold; color: #d84315; text-shadow: 1px 1px #fff; max-width: 90vw; text-align: center; }
 
     /* Responsive styles */
     @media (max-width: 600px) {
       #controls { flex-direction: column; }
       #controls input, #controls button { width: 100%; }
       #lists { flex-direction: column; gap: 20px; }
-      .list-container { width: 100%; }
-      #spin-button { width: 100%; }
     }
   </style>
 </head>
@@ -219,31 +97,15 @@
       restaurants.forEach((r, i) => {
         const div = document.createElement('div');
         div.textContent = r.name;
-        div.className = 'restaurant-item';
-        div.draggable = true;
-        div.dataset.index = i;
-        div.addEventListener('dragstart', onDragStart);
+        div.className = 'restaurant-item' + (r.enabled ? '' : ' disabled');
+        // Tap to toggle
+        div.addEventListener('click', () => {
+          restaurants[i].enabled = !restaurants[i].enabled;
+          renderLists();
+        });
         (r.enabled ? enabledList : disabledList).appendChild(div);
       });
     }
-
-    function onDragStart(e) {
-      e.dataTransfer.setData('text/plain', e.target.dataset.index);
-    }
-    [enabledList, disabledList].forEach(list => {
-      list.addEventListener('dragover', e => {
-        e.preventDefault();
-        list.classList.add('drag-over');
-      });
-      list.addEventListener('dragleave', () => list.classList.remove('drag-over'));
-      list.addEventListener('drop', e => {
-        e.preventDefault();
-        const idx = e.dataTransfer.getData('text/plain');
-        restaurants[idx].enabled = (list.id === 'enabled-list');
-        list.classList.remove('drag-over');
-        renderLists();
-      });
-    });
 
     addButton.addEventListener('click', () => {
       const name = newRestaurantInput.value.trim();
@@ -253,9 +115,7 @@
         renderLists();
       }
     });
-    newRestaurantInput.addEventListener('keyup', e => {
-      if (e.key === 'Enter') addButton.click();
-    });
+    newRestaurantInput.addEventListener('keyup', e => { if (e.key === 'Enter') addButton.click(); });
 
     function spinSlot() {
       const active = restaurants.filter(r => r.enabled).map(r => r.name);
@@ -276,13 +136,11 @@
         slotContainer.appendChild(div);
         fullList.push(item);
       }
-      // Measure and center with fudge for alignment
       const itemElem = slotContainer.querySelector('.slot-item');
       const itemHeight = itemElem.offsetHeight;
       const slotHeight = slotBox.clientHeight;
-      const fudge = 6; 
+      const fudge = 6;
       const offset = (slotHeight - itemHeight) / 2 + fudge;
-
       const distance = (totalItems + finalIndex) * itemHeight;
       const finalDistance = distance - offset;
 
