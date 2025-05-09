@@ -27,13 +27,16 @@
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
+      width: 100%;
+      max-width: 500px;
     }
     #controls input {
+      flex: 1;
       padding: 8px;
       font-size: 1rem;
       border: 2px solid #333;
       border-radius: 4px;
-      width: 200px;
+      width: auto;
     }
     #controls button {
       padding: 8px 16px;
@@ -55,13 +58,15 @@
       display: flex;
       gap: 30px;
       margin-bottom: 30px;
+      width: 100%;
+      max-width: 600px;
     }
     .list-container {
       background: #fff;
       padding: 15px;
       border-radius: 8px;
-      width: 220px;
-      min-height: 220px;
+      flex: 1;
+      min-height: 200px;
       box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
     }
     .list-container h3 {
@@ -92,7 +97,8 @@
 
     /* Slot machine styles */
     #slot {
-      width: 320px;
+      width: 90vw;
+      max-width: 320px;
       height: 120px;
       border: 6px solid #333;
       border-radius: 8px;
@@ -118,7 +124,7 @@
       justify-content: center;
       font-size: 1.5rem;
       background: linear-gradient(180deg, #fff7f0, #ffe6e0);
-      border-bottom: 1px solid #ddd;
+      border-bottom: 0px solid #ddd;
     }
 
     /* Spin button */
@@ -145,6 +151,17 @@
       font-weight: bold;
       color: #d84315;
       text-shadow: 1px 1px #fff;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 600px) {
+      #controls { flex-direction: column; }
+      #controls input, #controls button { width: 100%; }
+      #lists { flex-direction: column; gap: 20px; }
+      .list-container { width: 100%; }
+      #spin-button { width: 100%; }
     }
   </style>
 </head>
@@ -182,7 +199,8 @@
       { name: "German Donner Kebab", enabled: false },
       { name: "McDonald's", enabled: true },
       { name: "Fostok Halab", enabled: false },
-      { name: "Nando's", enabled: true }
+      { name: "Nando's", enabled: true },
+      { name: "Salad", enabled: false }
     ];
 
     const enabledList = document.getElementById('enabled-list');
@@ -258,11 +276,11 @@
         slotContainer.appendChild(div);
         fullList.push(item);
       }
-      // Measure heights dynamically and apply small fudge for centering
+      // Measure and center with fudge for alignment
       const itemElem = slotContainer.querySelector('.slot-item');
       const itemHeight = itemElem.offsetHeight;
       const slotHeight = slotBox.clientHeight;
-      const fudge = 10; // positive fudge moves selection down
+      const fudge = 6; 
       const offset = (slotHeight - itemHeight) / 2 + fudge;
 
       const distance = (totalItems + finalIndex) * itemHeight;
@@ -278,7 +296,7 @@
 
       currentTimeout = setTimeout(() => {
         const chosen = fullList[totalItems + finalIndex];
-        resultDiv.textContent = `You should eat at: ${chosen}`;
+        resultDiv.textContent = `Ed Eats Recommends: ${chosen}`;
         currentTimeout = null;
       }, 3000);
     }
