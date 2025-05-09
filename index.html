@@ -5,25 +5,101 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ed Eats</title>
   <style>
+    /* Global styles */
     body {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      padding: 20px;
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #80d8ff, #a7ffeb);
+      color: #333;
     }
-    #slot {
-      width: 300px;
-      height: 100px;
-      border: 5px solid #333;
-      background: white;
-      font-size: 24px;
+    h1 {
+      font-size: 2.5rem;
+      margin: 0 0 10px;
+      text-shadow: 2px 2px #fff;
+    }
+
+    /* Controls */
+    #controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    #controls input {
+      padding: 8px;
+      font-size: 1rem;
+      border: 2px solid #333;
+      border-radius: 4px;
+      width: 200px;
+    }
+    #controls button {
+      padding: 8px 16px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #ff6f61;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+    }
+    #controls button:hover {
+      background: #ff3b2f;
+    }
+
+    /* Lists layout */
+    #lists {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    .list-container {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      width: 220px;
+      min-height: 220px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+    }
+    .list-container h3 {
+      text-align: center;
+      margin-top: 0;
+      font-size: 1.2rem;
+      border-bottom: 2px solid #ff6f61;
+      padding-bottom: 5px;
+    }
+    .restaurant-item {
+      padding: 8px;
+      margin: 6px 0;
+      background: #ffeee6;
+      border-radius: 4px;
+      cursor: move;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-weight: bold;
+    }
+    .restaurant-item::before {
+      content: '🍽️';
+    }
+    .list-container.drag-over {
+      background: #fff5f0;
+      border: 2px dashed #ff6f61;
+    }
+
+    /* Slot machine styles */
+    #slot {
+      width: 320px;
+      height: 120px;
+      border: 6px solid #333;
+      border-radius: 8px;
+      background: #fff;
       overflow: hidden;
       position: relative;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
     }
     #slot-container {
       display: flex;
@@ -32,106 +108,183 @@
       top: 0;
       left: 0;
       right: 0;
-      animation-timing-function: ease-in-out;
+      transform: translateY(0);
+      transition: none;
     }
     .slot-item {
-      height: 100px;
+      height: 120px;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 1.5rem;
+      background: linear-gradient(180deg, #fff7f0, #ffe6e0);
+      border-bottom: 1px solid #ddd;
     }
-    button {
+
+    /* Spin button */
+    #spin-button {
       margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 6px;
+      background: #ff6f61;
+      color: #fff;
       cursor: pointer;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      transition: background 0.3s;
     }
+    #spin-button:hover {
+      background: #ff3b2f;
+    }
+
+    /* Result text */
     #result {
       margin-top: 20px;
-      font-size: 20px;
+      font-size: 1.4rem;
       font-weight: bold;
-    }
-    #restaurant-list {
-      margin-top: 30px;
-      font-size: 16px;
-      max-width: 300px;
-      text-align: center;
-      background: #fff;
-      padding: 10px;
-      border: 2px solid #333;
-      border-radius: 10px;
+      color: #d84315;
+      text-shadow: 1px 1px #fff;
     }
   </style>
 </head>
 <body>
   <h1>Ed Eats</h1>
+  <div id="controls">
+    <input type="text" id="new-restaurant" placeholder="Add restaurant name" />
+    <button id="add-button">Add</button>
+  </div>
+
+  <div id="lists">
+    <div id="enabled-list" class="list-container">
+      <h3>Selected</h3>
+    </div>
+    <div id="disabled-list" class="list-container">
+      <h3>Unselected</h3>
+    </div>
+  </div>
+
   <div id="slot">
     <div id="slot-container"></div>
   </div>
-  <button onclick="spinSlot()">Spin</button>
+  <button id="spin-button" onclick="spinSlot()">Spin</button>
   <div id="result"></div>
-  <div id="restaurant-list"></div>
   <audio id="slot-sound" src="https://www.soundjay.com/mechanical/sounds/slot-machine-1.mp3" preload="auto"></audio>
 
   <script>
-    const restaurants = [
-      "Forno Di Napoli", "Tasty Greek", "Ming's Chinese", "Amigos",
-      "Morley's", "Chicken Kitchen", "German Donner Kebab", "McDonald's",
-      "Fostok Halab", "Nando's"
+    let restaurants = [
+      { name: "Forno Di Napoli", enabled: true },
+      { name: "Tasty Greek", enabled: true },
+      { name: "Ming's Chinese", enabled: true },
+      { name: "Amigos", enabled: true },
+      { name: "Morley's", enabled: true },
+      { name: "Chicken Kitchen", enabled: false },
+      { name: "German Donner Kebab", enabled: false },
+      { name: "McDonald's", enabled: true },
+      { name: "Fostok Halab", enabled: false },
+      { name: "Nando's", enabled: true }
     ];
 
-    const slotContainer = document.getElementById("slot-container");
-    const resultDiv = document.getElementById("result");
-    const slotSound = document.getElementById("slot-sound");
-    const restaurantList = document.getElementById("restaurant-list");
-
+    const enabledList = document.getElementById('enabled-list');
+    const disabledList = document.getElementById('disabled-list');
+    const addButton = document.getElementById('add-button');
+    const newRestaurantInput = document.getElementById('new-restaurant');
+    const slotContainer = document.getElementById('slot-container');
+    const slotBox = document.getElementById('slot');
+    const resultDiv = document.getElementById('result');
+    const slotSound = document.getElementById('slot-sound');
     let currentTimeout;
 
+    function renderLists() {
+      enabledList.innerHTML = '<h3>Selected</h3>';
+      disabledList.innerHTML = '<h3>Unselected</h3>';
+      restaurants.forEach((r, i) => {
+        const div = document.createElement('div');
+        div.textContent = r.name;
+        div.className = 'restaurant-item';
+        div.draggable = true;
+        div.dataset.index = i;
+        div.addEventListener('dragstart', onDragStart);
+        (r.enabled ? enabledList : disabledList).appendChild(div);
+      });
+    }
+
+    function onDragStart(e) {
+      e.dataTransfer.setData('text/plain', e.target.dataset.index);
+    }
+    [enabledList, disabledList].forEach(list => {
+      list.addEventListener('dragover', e => {
+        e.preventDefault();
+        list.classList.add('drag-over');
+      });
+      list.addEventListener('dragleave', () => list.classList.remove('drag-over'));
+      list.addEventListener('drop', e => {
+        e.preventDefault();
+        const idx = e.dataTransfer.getData('text/plain');
+        restaurants[idx].enabled = (list.id === 'enabled-list');
+        list.classList.remove('drag-over');
+        renderLists();
+      });
+    });
+
+    addButton.addEventListener('click', () => {
+      const name = newRestaurantInput.value.trim();
+      if (name) {
+        restaurants.push({ name, enabled: true });
+        newRestaurantInput.value = '';
+        renderLists();
+      }
+    });
+    newRestaurantInput.addEventListener('keyup', e => {
+      if (e.key === 'Enter') addButton.click();
+    });
+
     function spinSlot() {
-      if (currentTimeout) clearTimeout(currentTimeout);
+      const active = restaurants.filter(r => r.enabled).map(r => r.name);
+      if (currentTimeout || active.length === 0) return;
+      resultDiv.textContent = '';
+      slotContainer.style.transition = 'none';
+      slotContainer.style.transform = 'translateY(0)';
+      slotContainer.innerHTML = '';
 
-      resultDiv.textContent = "";
-      slotContainer.style.transition = "none";
-      slotContainer.style.transform = "translateY(0)";
-      slotContainer.innerHTML = "";
-
-      let totalItems = restaurants.length * 10;
-      let finalIndex = Math.floor(Math.random() * restaurants.length);
-
+      const totalItems = active.length * 10;
+      const finalIndex = Math.floor(Math.random() * active.length);
       const fullList = [];
-      for (let i = 0; i < totalItems + restaurants.length; i++) {
-        const item = restaurants[i % restaurants.length];
-        const div = document.createElement("div");
-        div.className = "slot-item";
+      for (let i = 0; i < totalItems + active.length; i++) {
+        const item = active[i % active.length];
+        const div = document.createElement('div');
+        div.className = 'slot-item';
         div.textContent = item;
         slotContainer.appendChild(div);
         fullList.push(item);
       }
+      // Measure heights dynamically and apply small fudge for centering
+      const itemElem = slotContainer.querySelector('.slot-item');
+      const itemHeight = itemElem.offsetHeight;
+      const slotHeight = slotBox.clientHeight;
+      const fudge = 10; // positive fudge moves selection down
+      const offset = (slotHeight - itemHeight) / 2 + fudge;
 
-      const duration = 3000;
-      const distance = (totalItems + finalIndex) * 100;
+      const distance = (totalItems + finalIndex) * itemHeight;
+      const finalDistance = distance - offset;
 
       requestAnimationFrame(() => {
-        slotContainer.style.transition = `transform ${duration}ms ease-out`;
-        slotContainer.style.transform = `translateY(-${distance}px)`;
+        slotContainer.style.transition = `transform ${3000}ms ease-out`;
+        slotContainer.style.transform = `translateY(-${finalDistance}px)`;
       });
 
       slotSound.currentTime = 0;
       slotSound.play();
 
       currentTimeout = setTimeout(() => {
-        const visibleIndex = totalItems + finalIndex;
-        const chosen = fullList[visibleIndex];
+        const chosen = fullList[totalItems + finalIndex];
         resultDiv.textContent = `You should eat at: ${chosen}`;
         currentTimeout = null;
-      }, duration);
+      }, 3000);
     }
 
-    function renderRestaurantList() {
-      restaurantList.innerHTML = "<strong>Restaurants:</strong><br>" + restaurants.join("<br>");
-    }
-
-    renderRestaurantList();
+    // Initial render
+    renderLists();
   </script>
 </body>
 </html>
