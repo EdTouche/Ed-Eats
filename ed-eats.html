@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ed Eats</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+    #slot {
+      width: 300px;
+      height: 100px;
+      border: 5px solid #333;
+      background: white;
+      font-size: 24px;
+      font-weight: bold;
+      overflow: hidden;
+      position: relative;
+    }
+    #slot-container {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      animation-timing-function: ease-in-out;
+    }
+    .slot-item {
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    #restaurant-list {
+      margin-top: 30px;
+      font-size: 16px;
+      max-width: 300px;
+      text-align: center;
+      background: #fff;
+      padding: 10px;
+      border: 2px solid #333;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ed Eats</h1>
+  <div id="slot">
+    <div id="slot-container"></div>
+  </div>
+  <button onclick="spinSlot()">Spin</button>
+  <div id="result"></div>
+  <div id="restaurant-list"></div>
+  <audio id="slot-sound" src="https://www.soundjay.com/mechanical/sounds/slot-machine-1.mp3" preload="auto"></audio>
+
+  <script>
+    const restaurants = [
+      "Forno Di Napoli", "Tasty Greek", "Ming's Chinese", "Amigos",
+      "Morley's", "Chicken Kitchen", "German Donner Kebab", "McDonald's",
+      "Fostok Halab", "Nando's"
+    ];
+
+    const slotContainer = document.getElementById("slot-container");
+    const resultDiv = document.getElementById("result");
+    const slotSound = document.getElementById("slot-sound");
+    const restaurantList = document.getElementById("restaurant-list");
+
+    let currentTimeout;
+
+    function spinSlot() {
+      if (currentTimeout) clearTimeout(currentTimeout);
+
+      resultDiv.textContent = "";
+      slotContainer.style.transition = "none";
+      slotContainer.style.transform = "translateY(0)";
+      slotContainer.innerHTML = "";
+
+      let totalItems = restaurants.length * 10;
+      let finalIndex = Math.floor(Math.random() * restaurants.length);
+
+      const fullList = [];
+      for (let i = 0; i < totalItems + restaurants.length; i++) {
+        const item = restaurants[i % restaurants.length];
+        const div = document.createElement("div");
+        div.className = "slot-item";
+        div.textContent = item;
+        slotContainer.appendChild(div);
+        fullList.push(item);
+      }
+
+      const duration = 3000;
+      const distance = (totalItems + finalIndex) * 100;
+
+      requestAnimationFrame(() => {
+        slotContainer.style.transition = `transform ${duration}ms ease-out`;
+        slotContainer.style.transform = `translateY(-${distance}px)`;
+      });
+
+      slotSound.currentTime = 0;
+      slotSound.play();
+
+      currentTimeout = setTimeout(() => {
+        const visibleIndex = totalItems + finalIndex;
+        const chosen = fullList[visibleIndex];
+        resultDiv.textContent = `You should eat at: ${chosen}`;
+        currentTimeout = null;
+      }, duration);
+    }
+
+    function renderRestaurantList() {
+      restaurantList.innerHTML = "<strong>Restaurants:</strong><br>" + restaurants.join("<br>");
+    }
+
+    renderRestaurantList();
+  </script>
+</body>
+</html>
